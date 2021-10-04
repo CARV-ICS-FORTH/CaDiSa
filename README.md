@@ -1,17 +1,53 @@
-# PMIx Docker Swarm Toy Box
+# CaDiSa aka CARV Distributed Sandbox
 
-These instructions worked on Mac OSX Mojave (10.14.6) with Docker Desktop 2.1.0.4. They should work more generally, but you know how that goes.
+## Acknowledgements
 
-This assumes that you are using 1 node (your laptop), and do not need to setup any virtual machines.
+This work was derived from [PMIx Docker Swarm Toy Box by Josh Hursey](https://github.com/jjhursey/pmix-swarm-toy-box).
 
 
-## One time setup
+## Purpose
 
-Initialize the swarm cluster
+This software is a collection of scripts and docker images used to deploy containers over one or multiple physical hosts for developing distributed software. It uses docker to build containers and and docker swarm to create an overlay network to connect these containers together in order to simulate a cluster. The initial use was for developing and testing OpenMPI and PMIx.
+
+Naming conventions:
+* physical hosts == hosts
+* created containers == nodes
+
+## Prerequisites
+
+* Docker Engine must be installed on all hosts. (https://docs.docker.com/engine/install/)
+* Docker group must be created on all hosts and the user who runs CaDiSa must be a member on docker group in each host.
+* If you want to run on multiple hosts, the location from where you run CaDiSa must be a shared location between all hosts eg NFS 
+
+## Installation
+
+### Single host setup
+Initialize docker swarm
 
 ```
 docker swarm init
 ```
+
+### Multiple hosts setup
+Chose one of the hosts to act as a manager for docker swarm. Then initialise docker swarm on it as a manager.
+
+```
+docker swarm init --advertise-addr [MAN_IP_ADDRESS]
+```
+Where [MAN_IP-ADDRESS] is the address of the physical network of the manager host that you want the container traffic to pass through.
+After initialisation a unique [TOKEN] will be returned. It is used to connect other hosts to this swarm manager.
+
+Then from all other hosts join this swarm
+
+```
+docker swarm join     --advertise-addr [WORKER_IP_ADDRESS] --token [TOKEN]     [MAN_IP_ADDRESS]:2377
+```
+Where [WORKER_IP_ADDRESS] is the ip address of each worker host that is on the same network with the manager host. After this is done on EACH host, all inidvidual docker engines on all hosts can communicate through the nework.
+
+More info on swarm commands
+[docker swarm init](https://docs.docker.com/engine/reference/commandline/swarm_init/)
+[docker swarm join](https://docs.docker.com/engine/reference/commandline/swarm_join/)
+
 
 ## Build the Docker image
 
