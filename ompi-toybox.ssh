@@ -20,7 +20,7 @@
 #
 FROM centos:7
 
-MAINTAINER Josh Hursey <jhursey@us.ibm.com>
+MAINTAINER Theocharis Vavouris <vavouris@ics.forth.gr>
 
 # ------------------------------------------------------------
 # Install required packages
@@ -40,11 +40,15 @@ RUN yum -y update && \
     yum clean all
 
 # ------------------------------------------------------------
+# Create directories to use for mounting
 # Define support libraries
 # - hwloc
 # - libevent
 # ------------------------------------------------------------
 RUN mkdir -p /opt/hpc/local/build
+RUN mkdir -p /opt/hpc/external
+RUN mkdir -= /opt/hpc/results
+
 COPY src /opt/hpc/local/src
 
 ARG LIBEVENT_INSTALL_PATH=/opt/hpc/local/libevent

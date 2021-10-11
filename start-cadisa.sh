@@ -8,6 +8,7 @@ OVERLAY_NETWORK=pmix-net
 NNODES=2
 INSTALL_DIR=
 BUILD_DIR=
+RESULTS_DIR=
 NHOSTS=1
 HOSTSARG=
 declare -a HOSTSARRAY
@@ -28,8 +29,9 @@ while [[ $# -gt 0 ]] ; do
     -p | --prefix PREFIX       Prefix string for hostnames (Default: %s)
     -n | --num NUM             Number of nodes to start on this host (Default: %s)
     -i | --image NAME          Name of the container image (Required)
-         --install DIR         Full path to the 'install' directory
          --build DIR           Full path to the 'build' directory
+         --install DIR         Full path to the 'install' directory
+		 --results DIR         Full path to the 'results' directory
     -d | --dryrun              Dry run. Do not actually start anything.
     -h | --help                Print this help message\n" \
         `basename $0` $COMMON_PREFIX $NNODES
@@ -58,13 +60,17 @@ while [[ $# -gt 0 ]] ; do
             shift
             IMAGE_NAME=$1
             ;;
+        "--build")
+            shift
+            BUILD_DIR=$1
+            ;;
         "--install")
             shift
             INSTALL_DIR=$1
             ;;
-        "--build")
+		"--results")
             shift
-            BUILD_DIR=$1
+            RESULTS_DIR=$1
             ;;
         "-d" | "--dryrun")
             DRYRUN=1
@@ -110,6 +116,9 @@ startup_container()
     fi
     if [ "x" != "x$INSTALL_DIR" ] ; then
         _OTHER_ARGS+=" -v $INSTALL_DIR:/opt/hpc/external"
+    fi
+	if [ "x" != "x$RESULTS_DIR" ] ; then
+        _OTHER_ARGS+=" -v $RESULTS_DIR:/opt/hpc/results"
     fi
 
     # --privileged
