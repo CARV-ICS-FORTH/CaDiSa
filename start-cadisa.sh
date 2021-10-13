@@ -4,7 +4,7 @@
 # Default values
 #
 IMAGE_NAME=vavouris/carv-building-repos:ompi-toybox
-OVERLAY_NETWORK=pmix-net
+OVERLAY_NETWORK=cadisa-net
 NNODES=2
 INSTALL_DIR=
 BUILD_DIR=
@@ -25,28 +25,28 @@ while [[ $# -gt 0 ]] ; do
     case $1 in
         "-h" | "--help")
             printf "Usage: %s [option]
-	-m | --multiple HOST1,HOST2,...,HOSTN distribute the nodes over multiple physical hosts (DOCKER SWARM HAS TO BE CONFIGURED FIRST!)
+    -m | --multiple HOST1,HOST2,...,HOSTN distribute the nodes over multiple physical hosts (DOCKER SWARM HAS TO BE CONFIGURED FIRST!)
     -p | --prefix PREFIX       Prefix string for hostnames (Default: %s)
     -n | --num NUM             Number of nodes to start on this host (Default: %s)
     -i | --image NAME          Name of the container image (Required)
          --build DIR           Full path to the 'build' directory
          --install DIR         Full path to the 'install' directory
-		 --results DIR         Full path to the 'results' directory
+         --results DIR         Full path to the 'results' directory
     -d | --dryrun              Dry run. Do not actually start anything.
     -h | --help                Print this help message\n" \
         `basename $0` $COMMON_PREFIX $NNODES
             exit 0
             ;;
-		"-m" | "--multiple")
-			shift
-			HOSTSARG=$1
-			HOSTSARRAY=(`echo $HOSTSARG | tr ',' ' '`)
-			if [ "$NHOSTS" -lt "${#HOSTSARRAY[@]}" ] ; then
-				NHOSTS=${#HOSTSARRAY[@]}
-			else
-				printf "No hosts provided, defaulting to `hostname -s` \n"
-				HOSTSARRAY[0]=`hostname -s`
-			fi
+        "-m" | "--multiple")
+            shift
+            HOSTSARG=$1
+            HOSTSARRAY=(`echo $HOSTSARG | tr ',' ' '`)
+            if [ "$NHOSTS" -lt "${#HOSTSARRAY[@]}" ] ; then
+                NHOSTS=${#HOSTSARRAY[@]}
+            else
+                printf "No hosts provided, defaulting to `hostname -s` \n"
+                HOSTSARRAY[0]=`hostname -s`
+            fi
             ;;
         "-p" | "--prefix")
             shift
@@ -68,7 +68,7 @@ while [[ $# -gt 0 ]] ; do
             shift
             INSTALL_DIR=$1
             ;;
-		"--results")
+        "--results")
             shift
             RESULTS_DIR=$1
             ;;
@@ -103,7 +103,7 @@ startup_container()
         echo ""
         echo "Starting: $C_HOSTNAME"
         echo "---------------------"
-		echo "host is ${HOSTSARRAY[(((($i - 1)) % $NHOSTS))]}"
+        echo "host is ${HOSTSARRAY[(((($i - 1)) % $NHOSTS))]}"
     else
         echo "Starting: $C_HOSTNAME"
     fi
@@ -117,7 +117,7 @@ startup_container()
     if [ "x" != "x$INSTALL_DIR" ] ; then
         _OTHER_ARGS+=" -v $INSTALL_DIR:/opt/hpc/external"
     fi
-	if [ "x" != "x$RESULTS_DIR" ] ; then
+    if [ "x" != "x$RESULTS_DIR" ] ; then
         _OTHER_ARGS+=" -v $RESULTS_DIR:/opt/hpc/results"
     fi
 
@@ -157,9 +157,9 @@ startup_container()
         exit 1
     fi
     C_SHORT_ID=`echo $C_FULL_ID | cut -c -12`
-	CMD="ssh ${HOSTSARRAY[(((($i - 1)) % $NHOSTS))]} docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $C_SHORT_ID"
+    CMD="ssh ${HOSTSARRAY[(((($i - 1)) % $NHOSTS))]} docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $C_SHORT_ID"
     C_IP_ADDR=`$CMD`
-	echo "$C_IP_ADDR" >> $MPI_HOSTFILE 
+    echo "$C_IP_ADDR" >> $MPI_HOSTFILE 
     ALL_CONTAINERS+=($C_SHORT_ID)
 }
 
@@ -183,7 +183,7 @@ fi
 
 # Create each virtual node
 for i in $(seq 1 $NNODES); do
-	
+
     startup_container $i
 done
 
@@ -200,7 +200,7 @@ chmod +x $SHUTDOWN_FILE
 z=0
 for cid in "${ALL_CONTAINERS[@]}" ; do
     echo "ssh " ${HOSTSARRAY[(( $z % $NHOSTS))]} " docker stop $cid" >> $SHUTDOWN_FILE
-	((z=z+1))
+    ((z=z+1))
 done
 
 CMD="docker network rm $OVERLAY_NETWORK"

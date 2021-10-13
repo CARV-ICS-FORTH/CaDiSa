@@ -48,24 +48,102 @@ More info on swarm commands
 [docker swarm init](https://docs.docker.com/engine/reference/commandline/swarm_init/)
 [docker swarm join](https://docs.docker.com/engine/reference/commandline/swarm_join/)
 
+## Build the images
 
-## Build the Docker image
-
+You can use whichever image you want for the nodes. However, if you want to use multiple hosts, make sure the image is accessible from all hosts. To build the images supplied with this tool execute:
 ```
-./build.sh
+./build-images.sh
 ```
 
 Example:
 ```
-shell$ ./build.sh 
-Sending build context to Docker daemon  12.04MB
-Step 1/38 : FROM centos:7
- ---> 1e1148e4cc2c
-Step 2/38 : MAINTAINER Josh Hursey <jhursey@us.ibm.com>
+shell$ ./build-images.sh
+Sending build context to Docker daemon 24.63 MB
+Step 1/46 : FROM centos:7
+ ---> eeb6ee3f44bd
+Step 2/46 : MAINTAINER Theocharis Vavouris <vavouris@ics.forth.gr>
 ...
-Successfully built 84d26427c5bf
-Successfully tagged ompi-toy-box:latest
+Step 46/46 : CMD /usr/sbin/sshd -D
+ ---> Running in c3a08714b831
+ ---> 2b933888700b
+Removing intermediate container c3a08714b831
+Successfully built 2b933888700b
+
 ```
+## Mount external directories on nodes
+
+For software development, CaDiSa has the option to mount external directories which are shared between nodes to speedup compilation and instalation of software under development. The locations on each node where external directories are mounted are:
+
+```
+/opt/mounts/build
+/opt/mounts/install
+/opt/mounts/results
+```
+The first two are for building and installing the software, and the third is used to collect results from nodes to be studied later.
+When using multiple hosts setup, these external directories must be in a shared location between hosts eg NFS. 
+
+## Startup the cluster
+
+We use start-cadisa.sh. When we have multiple hosts, this must run from swarm management host. This script will:
+ * Create a private overlay network between the pods (`docker network create --driver overlay --attachable`)
+ * Start N containers each named `$USER-nodeXY` where XY is the node number startig from `01`.
+ 
+```
+./start-cadisa.sh
+```
+
+Example:
+
+```
+shell$ ./start-cadisa.sh --help
+Usage: start-cadisa.sh [option]
+    -m | --multiple HOST1,HOST2,...,HOSTN distribute the nodes over multiple physical hosts (DOCKER SWARM HAS TO BE CONFIGURED FIRST!)
+    -p | --prefix PREFIX       Prefix string for hostnames (Default: vavouris-)
+    -n | --num NUM             Number of nodes to start on this host (Default: 2)
+    -i | --image NAME          Name of the container image (Required)
+         --build DIR           Full path to the 'build' directory
+         --install DIR         Full path to the 'install' directory
+         --results DIR         Full path to the 'results' directory
+    -d | --dryrun              Dry run. Do not actually start anything.
+    -h | --help                Print this help message
+shell$ ./start-cadisa.sh -n 5
+Establish network: cadisa-net
+Starting: vavouris-node01
+Starting: vavouris-node02
+Starting: vavouris-node03
+Starting: vavouris-node04
+Starting: vavouris-node05
+```
+
+
+## Drop into the first node
+
+We use a script to drop in on the first node in order not to use docker commands. If we used a custom prefix for hostnames when starting CaDiSa, we should pass that prefix as an argument to the script.
+```
+./drop-in.sh 
+```
+
+### To start with the external/developer versions of OpenPMIx/PRRTE/Open MPI 
+
+```
+./start-cadisa.sh --install $PWD/install --build $PWD/build --results $PWD/results
+```
+
+Example:
+
+```
+shell$ ./start-cadisa.sh -n 5 --install $PWD/install --build $PWD/build --results $PWD/results
+Establish network: cadisa-net
+Starting: vavouris-node01
+Starting: vavouris-node02
+Starting: vavouris-node03
+Starting: vavouris-node04
+Starting: vavouris-node05
+```
+
+
+
+If you did not specify `--install $PWD/install --build $PWD/build` then you can run with the built in versions.
 
 ## Setup your development environment outside the container
 
@@ -126,66 +204,6 @@ mkdir -p install
 For now it will be empty. We will fill it in with the build once we have the cluster started.
 
 
-## Startup the cluster
-
-This script will:
- * Create a private overlay network between the pods (`docker network create --driver overlay --attachable`)
- * Start N containers each named `$USER-nodeXY` where XY is the node number startig from `01`.
-
-
-### To start with the internal versions of OpenPMIx/PRRTE/Open MPI 
-```
-./start-n-containers.sh
-```
-
-Example:
-
-```
-shell$ ./start-n-containers.sh --help
-Usage: start-n-containers.sh [option]
-    -p | --prefix PREFIX       Prefix string for hostnames (Default: jhursey-)
-    -n | --num NUM             Number of nodes to start on this host (Default: 2)
-    -i | --image NAME          Name of the container image (Required)
-         --install DIR         Full path to the 'install' directory
-         --build DIR           Full path to the 'build' directory
-    -d | --dryrun              Dry run. Do not actually start anything.
-    -h | --help                Print this help message
-shell$ ./start-n-containers.sh -n 5
-Establish network: pmix-net
-Starting: jhursey-node01
-Starting: jhursey-node02
-Starting: jhursey-node03
-Starting: jhursey-node04
-Starting: jhursey-node05
-```
-
-### To start with the external/developer versions of OpenPMIx/PRRTE/Open MPI 
-
-```
-./start-n-containers.sh --install $PWD/install --build $PWD/build
-```
-
-Example:
-
-```
-shell$ ./start-n-containers.sh -n 5 --install $PWD/install --build $PWD/build
-Establish network: pmix-net
-Starting: jhursey-node01
-Starting: jhursey-node02
-Starting: jhursey-node03
-Starting: jhursey-node04
-Starting: jhursey-node05
-```
-
-
-## Drop into the first node
-
-I made a little script which is easier than remembering the CLI
-```
-./drop-in.sh 
-```
-
-If you did not specify `--install $PWD/install --build $PWD/build` then you can run with the built in versions.
 
 
 ## (Developer) Verify the volume mounts
