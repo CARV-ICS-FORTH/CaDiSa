@@ -53,7 +53,7 @@ RUN ln -s /opt/mounts/build /opt/hpc/local/build
 RUN ln -s /opt/mounts/install /opt/hpc/external
 RUN ln -s /opt/mounts/results /opt/hpc/results
 
-COPY src /opt/hpc/local/src
+COPY src/ompi-toybox /opt/hpc/local/src
 
 ARG LIBEVENT_INSTALL_PATH=/opt/hpc/local/libevent
 ENV LIBEVENT_INSTALL_PATH=$LIBEVENT_INSTALL_PATH
@@ -156,7 +156,7 @@ RUN rm -rf /opt/hpc/local/build && mkdir -p /opt/hpc/local/build
 # ------------------------------------------------------------
 RUN mkdir -p /opt/hpc/examples && chmod og+rwX /opt/hpc/examples && \
     mkdir -p /opt/hpc/etc && chmod og+rwX /opt/hpc/etc
-COPY tests /opt/hpc/examples
+COPY tests/ompi-toybox /opt/hpc/examples
 RUN cd /opt/hpc/examples && make
 
 
