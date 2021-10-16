@@ -90,7 +90,11 @@ For software development, CaDiSa has the option to mount external directories wh
 /opt/mounts/results
 ```
 The first two are for building and installing the software, and the third is used to collect results from nodes to be studied later.
-When using multiple hosts setup, these external directories must be in a shared location between hosts eg NFS. 
+When using multiple hosts setup, these external directories must be in a shared location between hosts e.g. NFS.
+
+This setup has two advantages:
+* You compile the code on one node only and then all the nodes have the compiled software. 
+* The developer can write code outside of the node, using his/her own editor/IDE etc.
 
 ## Startup the cluster
 
