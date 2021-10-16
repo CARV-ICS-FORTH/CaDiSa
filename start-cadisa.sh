@@ -9,6 +9,8 @@ NNODES=2
 INSTALL_DIR=
 BUILD_DIR=
 RESULTS_DIR=
+MEMORY=
+CPUS=
 NHOSTS=1
 HOSTSARG=
 declare -a HOSTSARRAY
@@ -32,6 +34,8 @@ while [[ $# -gt 0 ]] ; do
          --build DIR           Full path to the 'build' directory
          --install DIR         Full path to the 'install' directory
          --results DIR         Full path to the 'results' directory
+         --memory SIZE         Maximum memory per node. SIZE should be a positive integer followed by the suffix b, k, m, or g e.g. 1g
+         --cpus CORES          Maximum cpu cores per node CORES is a positive decimal e.g. 1.5 equals to one and a half CPU cores
     -d | --dryrun              Dry run. Do not actually start anything.
     -h | --help                Print this help message\n" \
         `basename $0` $COMMON_PREFIX $NNODES
@@ -71,6 +75,14 @@ while [[ $# -gt 0 ]] ; do
         "--results")
             shift
             RESULTS_DIR=$1
+            ;;
+        "--memory")
+            shift
+            MEMORY=$1
+            ;;
+        "--cpus")
+            shift
+            CPUS=$1
             ;;
         "-d" | "--dryrun")
             DRYRUN=1
@@ -119,6 +131,12 @@ startup_container()
     fi
     if [ "x" != "x$RESULTS_DIR" ] ; then
         _OTHER_ARGS+=" -v $RESULTS_DIR:/opt/hpc/results"
+    fi
+    if [ "x" != "x$MEMORY" ] ; then
+        _OTHER_ARGS+=" --memory $MEMORY"
+    fi
+.   if [ "x" != "x$CPUS" ] ; then
+        _OTHER_ARGS+=" --cpus $CPUS"
     fi
 
     # --privileged
