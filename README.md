@@ -1,4 +1,4 @@
-# CaDiSa aka CARV Distributed Sandbox
+# CaDiSa aka CARV Distributed Sandbox V1.0
 
 ## Acknowledgements
 
@@ -25,9 +25,10 @@ This is the general contents layout:
 
 ## Prerequisites
 
+* SSH with SSH keys properly set up for seamless SSH connections between the hosts.
 * Docker Engine must be installed on all hosts. (https://docs.docker.com/engine/install/)
 * Docker group must be created on all hosts and the user who runs CaDiSa must be a member on docker group in each host.
-* If you want to run on multiple hosts, the location from where you run CaDiSa must be a shared location between all hosts eg NFS 
+* If you want to run on multiple hosts, the location from where you run CaDiSa must be a shared location between all hosts eg NFS and make sure the local root users can have access to this shared folder, because docker runs with superuser privileges.
 
 ## Installation
 
@@ -57,6 +58,10 @@ Where [WORKER_IP_ADDRESS] is the ip address of each worker host that is on the s
 More info on swarm commands
 [docker swarm init](https://docs.docker.com/engine/reference/commandline/swarm_init/)
 [docker swarm join](https://docs.docker.com/engine/reference/commandline/swarm_join/)
+
+## CARV Cluster Setup (READ SUPER IMPORTANT)
+
+We've installed Docker and setup a swarm inside CARV Cluster. It consists of sith type machines and sith0 is the manager node. Sith1 to sith7 are the worker nodes. CARV Cluster home dirctories are on NFS but for security, we squash root access so local root doesn't have access inside these directories. Therefore we recommend to use /archive which is also shared via NFS, but local root access is permitted. Create a folder with your desired permissions there and inside said folder, clone this repo and run CaDiSa. However, we do not take backups or care about /archive so after one finished his/her work there, one should copy said work to one's home directory. For safety.
 
 ## Build the images
 
