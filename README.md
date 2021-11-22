@@ -1,8 +1,15 @@
-# CaDiSa aka CARV Distributed Sandbox V1.0
+# CaDiSa aka CARV Distributed Sandbox
 
 ## Acknowledgements
 
 This work was derived from [PMIx Docker Swarm Toy Box by Josh Hursey](https://github.com/jjhursey/pmix-swarm-toy-box).
+
+
+## Versions
+
+Please select the version you want to use by using "git checkout" command to change branch after clone.
+* Branch V1.0:initial Version
+* Latest: Added cpu/ram limit per container. Untested 
 
 
 ## Purpose
