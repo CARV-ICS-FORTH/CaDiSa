@@ -9,7 +9,7 @@ This work was derived from [PMIx Docker Swarm Toy Box by Josh Hursey](https://gi
 
 Please select the version you want to use by using "git checkout" command to change branch after clone.
 * Branch V1.0:initial Version
-* Latest: Added cpu/ram limit per container. Untested 
+* Master: Added cpu/ram limit per container. Untested 
 
 
 ## Purpose
