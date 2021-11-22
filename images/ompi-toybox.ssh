@@ -214,7 +214,11 @@ RUN echo "export PMIX_ROOT=/opt/hpc/external/pmix" >> /etc/bashrc && \
     echo "export HWLOC_INSTALL_PATH=/opt/hpc/local/hwloc" >> /etc/bashrc && \
     echo "ulimit -c unlimited" >> /etc/bashrc && \
     echo "alias pd=pushd" >> /etc/bashrc
-
+# ------------------------------------------------------------
+# GCC 10 installation
+# ------------------------------------------------------------
+RUN yum -y install centos-release-scl
+RUN yum -y install devtoolset-10
 # ------------------------------------------------------------
 # Kick off the ssh daemon
 # ------------------------------------------------------------
