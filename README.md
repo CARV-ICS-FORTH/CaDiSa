@@ -32,7 +32,7 @@ This is the general contents layout:
 
 ## Prerequisites
 
-* SSH with SSH keys properly set up for seamless SSH connections between the hosts.
+* SSH with SSH keys properly set up for seamless SSH connections between the hosts without the use of passwords.
 * Docker Engine must be installed on all hosts. (https://docs.docker.com/engine/install/)
 * Docker group must be created on all hosts and the user who runs CaDiSa must be a member on docker group in each host.
 * If you want to run on multiple hosts, the location from where you run CaDiSa must be a shared location between all hosts eg NFS and make sure the local root users can have access to this shared folder, because docker runs with superuser privileges.
@@ -108,6 +108,8 @@ This setup has two advantages:
 * You compile the code on one node only and then all the nodes have the compiled software. 
 * The developer can write code outside of the node, using his/her own editor/IDE etc.
 
+If one does not use external directories, then prebuilt versions of tested software are inside the containers, for testing/geting familiar with the use of the environment.
+
 ## Startup the cluster
 
 We use start-cadisa.sh. When we have multiple hosts, this must run from swarm management host. This script will:
@@ -144,7 +146,7 @@ Starting: vavouris-node05
 
 ## Drop into the first node
 
-We use a script to drop in on the first node in order not to use docker commands. If we used a custom prefix for hostnames when starting CaDiSa, we should pass that prefix as an argument to the script.
+We use a script to drop in on the first node in order not to use docker commands. If we used a custom prefix for hostnames when starting CaDiSa, we should pass that prefix as an argument to the script. Also, we use the drop-in script on the first host that we have put nodes in if we used -m option when starting CaDiSa. Eg if we did `start-cadisa.sh -n 8 -m sith3,sith4` we should run drop-in.sh on sith3.
 ```
 ./drop-in.sh 
 ```
@@ -156,3 +158,4 @@ The script ./tmp/shutdown-[HOSTNAME].sh creates a shutdown file that can be used
 ```
 ./tmp/shutdown-tie1.sh 
 ```
+

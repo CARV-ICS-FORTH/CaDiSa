@@ -32,12 +32,25 @@ RUN yum -y update && \
     binutils less wget which sudo \
     perl perl-Data-Dumper \
     autoconf automake libtool flex bison \
-    iproute net-tools hwloc make git \
+    iproute net-tools hwloc make git zlib zlib-devel\
     libnl3 gtk2 atk cairo tcl tcsh tk pciutils lsof ethtool bc file \
     psmisc valgrind && \
     yum -y install epel-release && \
     yum -y install pandoc --enablerepo=epel && \
+    yum -y install gettext gettext-devel gettext-libs intltool && \
     yum clean all
+
+
+# ------------------------------------------------------------
+# GCC 10 installation
+# ------------------------------------------------------------
+RUN yum -y install centos-release-scl
+RUN yum -y install devtoolset-10
+# ------------------------------------------------------------
+# Launch with GCC 10
+# ------------------------------------------------------------
+RUN scl enable devtoolset-10 bash
+
 
 # ------------------------------------------------------------
 # Create directories to use for mounting
@@ -49,6 +62,7 @@ RUN mkdir -p /opt/mounts/build
 RUN mkdir -p /opt/mounts/install
 RUN mkdir -p /opt/mounts/results
 RUN mkdir -p /opt/hpc/local/
+RUN mkdir -p /opt/hpc/benchmarks/
 RUN ln -s /opt/mounts/build /opt/hpc/local/build
 RUN ln -s /opt/mounts/install /opt/hpc/external
 RUN ln -s /opt/mounts/results /opt/hpc/results
@@ -88,9 +102,11 @@ COPY .build-timestamp /root/
 # ------------------------------------------------------------
 ENV PMIX_ROOT=/opt/hpc/external/pmix
 ENV LD_LIBRARY_PATH="$PMIX_ROOT/lib:${LD_LIBRARY_PATH}"
+ARG _BUILD_PMIX_VERSION=v3.2
+ENV _BUILD_PMIX_VERSION=${_BUILD_PMIX_VERSION}
 
 RUN cd /opt/hpc/local/build && \
-    git clone -q -b master https://github.com/openpmix/openpmix.git && \
+    git clone -q -b ${_BUILD_PMIX_VERSION} https://github.com/openpmix/openpmix.git && \
     cd openpmix && \
     ./autogen.pl && \
     ./configure --prefix=${PMIX_ROOT} \
@@ -106,9 +122,12 @@ RUN cd /opt/hpc/local/build && \
 ENV PRRTE_ROOT=/opt/hpc/external/prrte
 ENV PATH="$PRRTE_ROOT/bin:${PATH}"
 ENV LD_LIBRARY_PATH="$PRRTE_ROOT/lib:${LD_LIBRARY_PATH}"
+ARG _BUILD_PRRTE_VERSION=v2.0
+ENV _BUILD_PRRTE_VERSION=${_BUILD_PRRTE_VERSION}
+
 
 RUN cd /opt/hpc/local/build && \
-    git clone -q -b master https://github.com/openpmix/prrte.git && \
+    git clone -q -b ${_BUILD_PRRTE_VERSION} https://github.com/openpmix/prrte.git && \
     cd prrte && \
     ./autogen.pl && \
     ./configure --prefix=${PRRTE_ROOT} \
@@ -127,9 +146,9 @@ ENV MPI_ROOT=/opt/hpc/external/ompi
 ENV PATH="$MPI_ROOT/bin:${PATH}"
 ENV LD_LIBRARY_PATH="$MPI_ROOT/lib:${LD_LIBRARY_PATH}"
 
-ARG _BUILD_OMPI_VERSION=4.0.3
+ARG _BUILD_OMPI_VERSION=4.1.1
 ENV _BUILD_OMPI_VERSION=${_BUILD_OMPI_VERSION}
-ARG _BUILD_OMPI_BASE_VERSION=4.0
+ARG _BUILD_OMPI_BASE_VERSION=4.1
 ENV _BUILD_OMPI_BASE_VERSION=${_BUILD_OMPI_BASE_VERSION}
 
 # Testing a release tarball of OMPI
@@ -146,10 +165,28 @@ RUN cd /opt/hpc/local/build && \
     make install 2>&1 | tee make.install.log.$$ 2>&1
 
 # ------------------------------------------------------------
-# Flush but keep the build directory
-# - We will mount in the pmix/prrte/ompi source in there
+# OSU Install
 # ------------------------------------------------------------
-RUN rm -rf /opt/hpc/local/build && mkdir -p /opt/hpc/local/build
+ENV OSU_ROOT=/opt/hpc/benchmarks
+
+
+ARG _BUILD_OSU_VERSION=5.8
+ENV _BUILD_OSU_VERSION=${_BUILD_OSU_VERSION}
+
+# Testing a release tarball of OSU
+RUN cd /opt/hpc/local/build && \
+    wget  -q https://mvapich.cse.ohio-state.edu/download/mvapich/osu-micro-benchmarks-${_BUILD_OSU_VERSION}.tgz && \
+    tar -zxf osu-micro-benchmarks-${_BUILD_OSU_VERSION}.tgz  && \
+    cd osu-micro-benchmarks-${_BUILD_OSU_VERSION} && \
+    ./configure --prefix=${OSU_ROOT} \
+                CC=${MPI_ROOT}/bin/mpicc \
+                CXX=${MPI_ROOT}/bin/mpicxx 2>&1 | tee configure.log.$$ 2>&1 && \
+    make -j 10   2>&1 | tee make.log.$$ 2>&1 && \
+    make install 2>&1 | tee make.install.log.$$ 2>&1
+
+RUN cd /opt/hpc/benchmarks/libexec && mv osu-micro-benchmarks ../ && cd ../ && rm -rf ./libexec
+
+
 
 # ------------------------------------------------------------
 # Copy in an MPI test program
