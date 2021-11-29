@@ -136,7 +136,7 @@ startup_container()
     if [ "x" != "x$MEMORY" ] ; then
         _OTHER_ARGS+=" --memory $MEMORY"
     fi
-.   if [ "x" != "x$CPUS" ] ; then
+    if [ "x" != "x$CPUS" ] ; then
         _OTHER_ARGS+=" --cpus $CPUS"
     fi
 
