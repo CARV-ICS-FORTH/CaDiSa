@@ -28,7 +28,7 @@ Starting: vavouris-node05
 
 If you did not specify `--install $PWD/install` `--build $PWD/build` or `--results $PWD/results` then you can run with the built in versions of these programs. For testing/getting familiar with the container.
 
-The default versions are:
+The built-in versions of these programs are:
 - PMIx v3.2
 - PRRTE v2.0
 - OMPI 4.1.1
