@@ -25,7 +25,7 @@ This is the general contents layout:
 
 ## Prerequisites
 
-* SSH with SSH keys properly set up for seamless SSH connections between the hosts.
+* SSH with SSH keys properly set up for seamless SSH connections between the hosts without the use of passwords.
 * Docker Engine must be installed on all hosts. (https://docs.docker.com/engine/install/)
 * Docker group must be created on all hosts and the user who runs CaDiSa must be a member on docker group in each host.
 * If you want to run on multiple hosts, the location from where you run CaDiSa must be a shared location between all hosts eg NFS and make sure the local root users can have access to this shared folder, because docker runs with superuser privileges.
