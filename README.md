@@ -101,6 +101,8 @@ This setup has two advantages:
 * You compile the code on one node only and then all the nodes have the compiled software. 
 * The developer can write code outside of the node, using his/her own editor/IDE etc.
 
+If one does not use external directories, then prebuilt versions of tested software are inside the containers, for testing/geting familiar with the use of the environment.
+
 ## Startup the cluster
 
 We use start-cadisa.sh. When we have multiple hosts, this must run from swarm management host. This script will:
