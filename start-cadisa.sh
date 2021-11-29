@@ -134,10 +134,10 @@ startup_container()
         _OTHER_ARGS+=" -v $RESULTS_DIR:/opt/hpc/results"
     fi
     if [ "x" != "x$MEMORY" ] ; then
-        _OTHER_ARGS+=" --memory $MEMORY"
+        _OTHER_ARGS+=" --memory=$MEMORY"
     fi
     if [ "x" != "x$CPUS" ] ; then
-        _OTHER_ARGS+=" --cpus $CPUS"
+        _OTHER_ARGS+=" --cpus=$CPUS"
     fi
 
     # --privileged
