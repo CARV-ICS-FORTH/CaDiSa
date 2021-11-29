@@ -139,7 +139,7 @@ Starting: vavouris-node05
 
 ## Drop into the first node
 
-We use a script to drop in on the first node in order not to use docker commands. If we used a custom prefix for hostnames when starting CaDiSa, we should pass that prefix as an argument to the script. Also, we use the drop-in script on the first host that we have put nodes in if we used -m option when starting CaDiSa. Eg if we did `start_cadisa.sh -n 8 -m sith3,sith4` we should run drop-in.sh on sith3.
+We use a script to drop in on the first node in order not to use docker commands. If we used a custom prefix for hostnames when starting CaDiSa, we should pass that prefix as an argument to the script. Also, we use the drop-in script on the first host that we have put nodes in if we used -m option when starting CaDiSa. Eg if we did `start-cadisa.sh -n 8 -m sith3,sith4` we should run drop-in.sh on sith3.
 ```
 ./drop-in.sh 
 ```
