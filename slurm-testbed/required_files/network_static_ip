@@ -1,0 +1,2 @@
+lxc.network.ipv4 = 10.0.3.50/24
+lxc.network.ipv4.gateway = auto
