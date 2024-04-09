@@ -161,7 +161,7 @@ The script ./tmp/shutdown-[HOSTNAME].sh creates a shutdown file that can be used
 ./tmp/shutdown-tie1.sh 
 ```
 
-# CREDITS / FUNDING
+## CREDITS / FUNDING
 
 We thankfully acknowledge the support of the European Commission and the
 Greek General Secretariat for Research and Innovation under the EuroHPC
